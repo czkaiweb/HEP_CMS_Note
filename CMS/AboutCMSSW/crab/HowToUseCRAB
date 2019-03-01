@@ -1,0 +1,40 @@
+CRAB is a a utility to submit CMSSW jobs to distributed computing resources. By using CRAB you will be able to:
+
+1. Access CMS data and Monte-Carlo which are distributed to CMS aligned centres worldwide.
+2. Exploit the CPU and storage resources at CMS aligned centres. 
+
+A deteiled description can be found in: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCrab#CRAB3_documentation
+
+In this document, following contents will be covered:
+1. Commands to run, monitor and control jobs via CRAB
+2. Building your own CRAB configuration file for MC generating and analysis
+
+The usual way to submit jobs via CRAB follows the way:
+
+1.Setuping up the environment to make CRAB3 available
+2.Prepare the configuration files which tell CRAB3 what to do
+3.Run CRAB3 to submit and control the jobs.
+
+
+Before we can run anything with CRAB, we should start by configuring the enrivonment to use CRAB3,
+If you are working on any site with CVMFS, CRAB3 would be ready to use. 
+A quick way to do that is:
+
+  $source /cvmfs/cms.cern.ch/crab3/crab.sh # or crab.csh, based on your shell
+
+Also you should have the authority to submitting jobs, 
+  
+  $voms-proxy-init --voms cms
+
+please check: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial#Get_a_CMS_VO_proxy
+
+Typically, we want CRAB3 sending a cfg file, which describes the thread for MC generating or analysis, to remote sites. We will talk about cfg file in configuration part.
+Just like sending a postman for delivering, you should tell him when, where, to whom and some personalized details.
+We also need a script to tell CRAB3 how to handle the delivering.
+
+Please check twiki page: https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile which descibe arguments and the script to translate CRAB2 config into a CRAB3 one.
+
+
+
+
+

@@ -1,0 +1,122 @@
+thread — Multiple threads of control
+https://docs.python.org/2/library/thread.html#module-thread
+
+Note: The thread module has been renamed to _thread in Python 3. The 2to3 tool will automatically adapt imports when converting your sources to Python 3; however, you should consider using the high-level threading module instead. 
+
+This module provides low-level primitives for working with multiple threads.
+
+exception thread.error
+
+Raised on thread-specific errors.
+
+thread.LockType
+
+This is the type of lock objects.
+
+thread.start_new_thread(function, args[, kwargs])
+
+Start a new thread and return its identifier. The thread executes the function function with the argument list args (which must be a tuple). The optional kwargs argument specifies a dictionary of keyword arguments. When the function returns, the thread silently exits. When the function terminates with an unhandled exception, a stack trace is printed and then the thread exits (but other threads continue to run).
+
+thread.interrupt_main()
+
+Raise a KeyboardInterrupt exception in the main thread. A subthread can use this function to interrupt the main thread.
+
+
+thread.exit()
+
+Raise the SystemExit exception. When not caught, this will cause the thread to exit silently.
+
+thread.allocate_lock()
+
+Return a new lock object. Methods of locks are described below. The lock is initially unlocked.
+
+thread.get_ident()
+
+Return the ‘thread identifier’ of the current thread. This is a nonzero integer. Its value has no direct meaning; it is intended as a magic cookie to be used e.g. to index a dictionary of thread-specific data. Thread identifiers may be recycled when a thread exits and another thread is created.
+
+thread.stack_size([size])
+
+Return the thread stack size used when creating new threads. The optional size argument specifies the stack size to be used for subsequently created threads, and must be 0 (use platform or configured default) or a positive integer value of at least 32,768 (32kB). If size is not specified, 0 is used. If changing the thread stack size is unsupported, the error exception is raised. If the specified stack size is invalid, a ValueError is raised and the stack size is unmodified. 32kB is currently the minimum supported stack size value to guarantee sufficient stack space for the interpreter itself. Note that some platforms may have particular restrictions on values for the stack size, such as requiring a minimum stack size > 32kB or requiring allocation in multiples of the system memory page size - platform documentation should be referred to for more information (4kB pages are common; using multiples of 4096 for the stack size is the suggested approach in the absence of more specific information). Availability: Windows, systems with POSIX threads.
+
+
+Lock objects have the following methods:
+
+lock.acquire([waitflag])
+
+Without the optional argument, this method acquires the lock unconditionally, if necessary waiting until it is released by another thread (only one thread at a time can acquire a lock — that’s their reason for existence). If the integer waitflag argument is present, the action depends on its value: if it is zero, the lock is only acquired if it can be acquired immediately without waiting, while if it is nonzero, the lock is acquired unconditionally as before. The return value is True if the lock is acquired successfully, False if not.
+
+lock.release()
+
+Releases the lock. The lock must have been acquired earlier, but not necessarily by the same thread.
+
+lock.locked()
+
+Return the status of the lock: True if it has been acquired by some thread, False if not.
+In addition to these methods, lock objects can also be used via the with statement, e.g.:
+
+---------------------------------------------------------
+import thread
+a_lock = thread.allocate_lock()
+---------------------------------------------------------
+
+with a_lock:
+print "a_lock is locked while this executes"
+
+Why we need a lock and how to use?
+If multiple threads are reading and writing a public data, thread compliction may happen.
+
+EXAMPLE: (If run this code, it will just print 0 and exit, reason explained later)
+----------------------------------------------------------------------
+import time, thread
+
+# Assume your account balance is zero
+balance = 0
+
+def change_it(n):
+    # deposit and withdraw,expected answer should be zero
+    global balance
+    balance = balance + n
+    balance = balance - n
+    if not(balance ==  0):
+      print balance
+
+def run_thread(n):
+    for i in range(1000):
+        change_it(n)
+
+t1 = thread.start_new_thread(run_thread, (5,))
+t2 = thread.start_new_thread(run_thread, (8,))
+print balance
+---------------------------------------------------------------------
+
+In CPU, two threads will run in turn and change the value of balance, which could lead to:
+---------------------------------------------------------------------
+t1: x1 = balance + 5  # x1 = 0 + 5 = 5
+t2: x2 = balance + 8  # x2 = 0 + 8 = 8
+t2: balance = x2      # balance = 8
+t1: balance = x1      # balance = 5
+t1: x1 = balance - 5  # x1 = 5 - 5 = 0
+t1: balance = x1      # balance = 0
+t2: x2 = balance - 5  # x2 = 0 - 5 = -5
+t2: balance = x2      # balance = -5
+---------------------------------------------------------------------
+
+To make the example actually run, 
+time.sleep(5) is needed after creating threads, if not, THE MAIN THREAD WILL FINISH AND IT WOULD NOT WAIT SUB_THREADS.
+
+To avoid the threads confliction, lock is utilized to protect the public data,
+----------------------------------------------------------------------
+balance = 0
+lock = thread.allocate_lock()
+
+def run_thread(n):
+    for i in range(100000):
+        # when lock acqiured, only this thread will be proceed, until this lock is released
+        lock.acquire()
+        try:
+            change_it(n)
+        finally:
+            # release the lock 
+            lock.release()
+-----------------------------------------------------------------------
+

@@ -1,0 +1,29 @@
+Queue — A synchronized queue class
+https://docs.python.org/2/library/queue.html
+
+The Queue module implements multi-producer, multi-consumer queues. It is especially useful in threaded programming when information must be exchanged safely between multiple threads. 
+
+
+CLASS Queue.Queue(maxsize=0)
+
+Constructor for a FIFO queue. maxsize is an integer that sets the upperbound limit on the number of items that can be placed in the queue. Insertion will block once this size has been reached, until queue items are consumed. If maxsize is less than or equal to zero, the queue size is infinite.
+
+CLASS Queue.LifoQueue(maxsize=0)
+
+Constructor for a LIFO queue. maxsize is an integer that sets the upperbound limit on the number of items that can be placed in the queue. Insertion will block once this size has been reached, until queue items are consumed. If maxsize is less than or equal to zero, the queue size is infinite.
+
+
+CLASS Queue.PriorityQueue(maxsize=0)
+
+Constructor for a priority queue. maxsize is an integer that sets the upperbound limit on the number of items that can be placed in the queue. Insertion will block once this size has been reached, until queue items are consumed. If maxsize is less than or equal to zero, the queue size is infinite.
+The lowest valued entries are retrieved first (the lowest valued entry is the one returned by sorted(list(entries))[0]). A typical pattern for entries is a tuple in the form: (priority_number, data).
+
+
+exception Queue.Empty
+
+Exception raised when non-blocking get() (or get_nowait()) is called on a Queue object which is empty.
+
+exception Queue.Full
+
+Exception raised when non-blocking put() (or put_nowait()) is called on a Queue object which is full.
+
